@@ -17,8 +17,9 @@ jobs:
                 cluster:
                   certificate-authority-data: yup
                   server: https://CAFEBABE.example
-      - run: |
-          printenv
-          ls -la /tmp/*.yaml
-          ps auwx | grep http.server
+      - name: show the results
+        run: |
+          echo "the resulting KUBECONFIG is \"$KUBECONFIG\""
+          ls -la $RUNNER_TEMP || true
+          ps auwx | grep http.server || true
         shell: bash
