@@ -1,0 +1,24 @@
+name: example workflow
+on:
+  workflow_dispatch:
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mdaniel/repo0/actions/foo@main
+        with:
+          # language=yaml
+          KUBECONFIG_YAML: |
+            apiVersion: v1
+            kind: Config
+            clusters:
+              - name: uh-huh
+                cluster:
+                  certificate-authority-data: yup
+                  server: https://CAFEBABE.example
+      - run: |
+          printenv
+          ls -la /tmp/*.yaml
+          ps auwx | grep http.server
+        shell: bash
