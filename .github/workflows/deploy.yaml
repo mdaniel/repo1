@@ -1,0 +1,47 @@
+name: autobots, roll out
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sniff_it:
+    runs-on: ubuntu-latest
+    name: example
+    outputs:
+      the_url: ${{ steps.the-url.outputs.the_url }}
+    steps:
+    - name: foo
+      id: the-url
+      run: echo "the_url=https://${{ github.ref_name }}.example.com" > $GITHUB_OUTPUT
+
+  deploy_it:
+    needs:
+    - sniff_it
+    runs-on: ubuntu-latest
+    permissions: write-all
+    name: deploy to ${{ github.ref_name }}
+    environment:
+      # we could obviously cook this in the prior job, too
+      name: env/${{ (github.ref == 'refs/heads/main') && 'dev' || github.ref_name }}
+      url: ${{ jobs.sniff_it.outputs.the_url }}
+    steps:
+    - name: doit
+      shell: bash
+      env:
+        EKS_ARN: ${{ vars.EKS_ARN }}
+      run: |
+        cat <<"FOO"
+        ${{ toJSON(github.event) }}
+        FOO
+        echo "currently ${{ runner.environment }} into ${EKS_ARN}"
+        if ! gh api --verbose \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          /repos/mdaniel/repo1/deployments
+        then
+          echo "Welp, not like that I guess RC=$?" >&2
+        fi
