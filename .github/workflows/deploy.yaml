@@ -33,6 +33,8 @@ jobs:
       shell: bash
       env:
         EKS_ARN: ${{ vars.EKS_ARN }}
+        # dumb
+        GH_TOKEN: ${{ github.token }}
       run: |
         cat <<"FOO"
         ${{ toJSON(github.event) }}
