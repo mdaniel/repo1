@@ -28,7 +28,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       id: stamp
       run: |
-        if [[ ${{ github.debug }} -eq 1 ]]; then
+        if true; # [[ ${{ github.debug }} -eq 1 ]]; then
           set -x
         fi
         echo "ACTIONS_RUNNER_DEBUG := <<${ACTIONS_RUNNER_DEBUG}>>" >&2
