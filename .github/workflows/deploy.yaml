@@ -18,9 +18,25 @@ jobs:
     runs-on: ubuntu-latest
     name: dynamic information
     outputs:
+      build_id: ${{ steps.stamp.outputs.the_build_id }}
       the_url: ${{ steps.the-url.outputs.the_url }}
+    permissions:
+      contents: write
     steps:
-    - name: foo
+    - name: stamp it
+      env:
+        GH_TOKEN: ${{ github.token }}
+      id: stamp
+      run: |
+        git config --get-regexp '^user\..*'
+        # git config user.name "GHA Deploy Bot"
+        # git config user.email "github-actions@exmaple.com"
+        my_tag=v0.${GITHUB_RUN_ID}.0
+        git tag $my_tag HEAD
+        git push origin tag "$my_tag"
+        echo "the_build_id=$my_tag" > $GITHUB_OUTPUT
+
+    - name: discover url
       id: the-url
       run: echo "the_url=https://${{ github.ref_name }}.example.com" > $GITHUB_OUTPUT
 
@@ -35,21 +51,19 @@ jobs:
       name: env/${{ (github.ref == 'refs/heads/main') && 'dev' || github.ref_name }}
       url: ${{ needs.sniff-it.outputs.the_url }}
     steps:
-    - name: doit
+    - name: yeet it
       shell: bash
       env:
         EKS_ARN: ${{ vars.EKS_ARN }}
         # dumb
         GH_TOKEN: ${{ github.token }}
+        THE_BUILD_ID: ${{ needs.sniff-it.outputs.build_id }}
       run: |
-        cat <<"FOO"
-        ${{ toJSON(github.event) }}
-        FOO
-        echo "currently ${{ runner.environment }} into ${EKS_ARN}"
+        echo "currently on ${{ runner.environment }} and sending ${THE_BUILD_ID} into ${EKS_ARN}"
         if ! gh api --verbose \
           -H "Accept: application/vnd.github+json" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
-          /repos/mdaniel/repo1/deployments
+          /repos/mdaniel/repo1/deployments | jq
         then
-          echo "Welp, not like that I guess RC=$?" >&2
+          echo "Welp, not like that I guess RC=${PIPESTATUS[0]}" >&2
         fi
