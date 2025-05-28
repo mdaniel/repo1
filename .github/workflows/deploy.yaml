@@ -73,7 +73,7 @@ jobs:
         if ! gh api --verbose \
           -H "Accept: application/vnd.github+json" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
-          /repos/mdaniel/repo1/deployments | jq
+          /repos/mdaniel/repo1/deployments
         then
           echo "Welp, not like that I guess RC=${PIPESTATUS[0]}" >&2
         fi
