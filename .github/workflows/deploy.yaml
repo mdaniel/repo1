@@ -40,7 +40,8 @@ jobs:
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
         my_tag=v0.${GITHUB_RUN_ID}.0
-        tag_msg="Created via [run $GITHUB_RUN_ID]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)"
+        # be aware markdown does not work here
+        tag_msg="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
         git tag "-m$tag_msg" "$my_tag" HEAD
         git push origin tag  "$my_tag"
         echo "the_build_id=$my_tag" > $GITHUB_OUTPUT
