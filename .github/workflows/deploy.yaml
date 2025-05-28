@@ -29,7 +29,7 @@ jobs:
     - name: stamp it
       id: stamp
       run: |
-        if [[ "${{ github.debug }}" -eq 1 ]]; then
+        if [[ "${{ runner.debug }}" -eq 1 ]]; then
           set -x
           echo "ACTIONS_RUNNER_DEBUG := <<${ACTIONS_RUNNER_DEBUG}>>" >&2
           echo "ACTIONS_STEP_DEBUG := <<${ACTIONS_STEP_DEBUG}>>" >&2
@@ -40,8 +40,9 @@ jobs:
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
         my_tag=v0.${GITHUB_RUN_ID}.0
-        git tag $my_tag HEAD
-        git push origin tag "$my_tag"
+        tag_msg="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+        git tag "-m$tag_msg" "$my_tag" HEAD
+        git push origin tag  "$my_tag"
         echo "the_build_id=$my_tag" > $GITHUB_OUTPUT
 
     - name: discover url
