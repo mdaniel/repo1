@@ -29,17 +29,15 @@ jobs:
     - name: stamp it
       id: stamp
       run: |
-        if true; then # [[ ${{ github.debug }} -eq 1 ]]; then
+        if [[ "${{ github.debug }}" -eq 1 ]]; then
           set -x
+          echo "ACTIONS_RUNNER_DEBUG := <<${ACTIONS_RUNNER_DEBUG}>>" >&2
+          echo "ACTIONS_STEP_DEBUG := <<${ACTIONS_STEP_DEBUG}>>" >&2
         fi
-        echo "ACTIONS_RUNNER_DEBUG := <<${ACTIONS_RUNNER_DEBUG}>>" >&2
-        echo "ACTIONS_STEP_DEBUG := <<${ACTIONS_STEP_DEBUG}>>" >&2
-        git config --get-regexp '^user\..*' || true
 
         # this pair is magic: https://github.com/actions/checkout/tree/v4.2.2#push-a-commit-using-the-built-in-token
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git config --get-regexp '^user\..*' || true
 
         my_tag=v0.${GITHUB_RUN_ID}.0
         git tag $my_tag HEAD
