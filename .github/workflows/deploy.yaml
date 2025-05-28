@@ -27,7 +27,7 @@ jobs:
     environment:
       # we could obviously cook this in the prior job, too
       name: env/${{ (github.ref == 'refs/heads/main') && 'dev' || github.ref_name }}
-      url: ${{ jobs.sniff_it.outputs.the_url }}
+      url: ${{ needs.sniff_it.outputs.the_url }}
     steps:
     - name: doit
       shell: bash
