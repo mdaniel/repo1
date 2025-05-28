@@ -28,9 +28,15 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       id: stamp
       run: |
-        git config --get-regexp '^user\..*'
-        # git config user.name "GHA Deploy Bot"
-        # git config user.email "github-actions@exmaple.com"
+        if [[ ${{ github.debug }} -eq 1 ]]; then
+          set -x
+        fi
+        echo "ACTIONS_RUNNER_DEBUG := <<${ACTIONS_RUNNER_DEBUG}>>" >&2
+        echo "ACTIONS_STEP_DEBUG := <<${ACTIONS_STEP_DEBUG}>>" >&2
+        git config --get-regexp '^user\..*' || true
+        git config user.name "GHA Deploy Bot"
+        git config user.email "github-actions@exmaple.com"
+        git config --get-regexp '^user\..*' || true
         my_tag=v0.${GITHUB_RUN_ID}.0
         git tag $my_tag HEAD
         git push origin tag "$my_tag"
