@@ -2,15 +2,21 @@ name: autobots, roll out
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+    # -> dev automagically
+    - main
+    # the other branches are covered under the "workflow_dispatch:"
+    # and then picking the branch
 
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  sniff_it:
+  sniff-it:
     runs-on: ubuntu-latest
-    name: example
+    name: dynamic information
     outputs:
       the_url: ${{ steps.the-url.outputs.the_url }}
     steps:
@@ -18,16 +24,16 @@ jobs:
       id: the-url
       run: echo "the_url=https://${{ github.ref_name }}.example.com" > $GITHUB_OUTPUT
 
-  deploy_it:
+  deploy-it:
     needs:
-    - sniff_it
+    - sniff-it
     runs-on: ubuntu-latest
     permissions: write-all
     name: deploy to ${{ github.ref_name }}
     environment:
       # we could obviously cook this in the prior job, too
       name: env/${{ (github.ref == 'refs/heads/main') && 'dev' || github.ref_name }}
-      url: ${{ needs.sniff_it.outputs.the_url }}
+      url: ${{ needs.sniff-it.outputs.the_url }}
     steps:
     - name: doit
       shell: bash
