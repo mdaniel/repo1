@@ -18,7 +18,7 @@ jobs:
           curl -fSL https://github.com/reviewdog/reviewdog/releases/download/v0.20.3/reviewdog_0.20.3_Linux_x86_64.tar.gz 
           | tar -xzf - -C /usr/local/bin reviewdog
 
-      - name: Ensure pylint
+      - name: Ensure black
         shell: bash
         run: |
           python3 -m venv /tmp/reviewdog-venv
@@ -33,5 +33,6 @@ jobs:
           /tmp/reviewdog-venv/bin/black botocore
           | reviewdog -f=black -name="black"
           -log-level=debug
-          -reporter=github-pr-check -level=info
+          -reporter=github-check -level=info
+          -filter-mode=nofilter -fail-on-error
         # -filter-mode=added
