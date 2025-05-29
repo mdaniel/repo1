@@ -15,7 +15,6 @@ on:
 jobs:
   create-release:
     runs-on: ubuntu-latest
-    # evidently not: permissions: write-all
     permissions:
       contents: write
     steps:
@@ -31,13 +30,12 @@ jobs:
 
     - name: cook the release entity
       shell: bash
-      env:
-        GH_TOKEN: ${{ github.token }}
+      # env:
+      #  GH_TOKEN: ${{ github.token }}
       run: |
         git fetch --tags
         tag_name="${{ inputs.for_tag }}"
-        # 'gh release create' doesn't accept anything but branch and sha
+        # 'gh release create' 403s with github.token
         target_sha=$(git rev-parse ${tag_name})
-        gh release create --latest \
-           --target "$target_sha" "${{ inputs.rel_tag }}" \
-           --title "${{ inputs.rel_tag }}"
+        git tag "-mRelease ${{ inputs.rel_tag }}" "${{ inputs.rel_tag }}" "$target_sha"
+        git push --tags
