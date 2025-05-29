@@ -1,0 +1,41 @@
+name: promote tag into different environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_tag:
+        description: a specific, rather than latest, tag to ship
+        type: string
+        required: false
+      into_environment:
+        type: environment
+        required: true
+
+jobs:
+  deploy-it:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    name: deploy to ${{ inputs.into_environment }}
+    environment:
+      name: ${{ inputs.into_environment }}
+    steps:
+    - name: promote it
+      shell: bash
+      env:
+        EKS_ARN: ${{ vars.EKS_ARN }}
+        # dumb
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        the_tag="${{ inputs.deploy_tag}}"
+        if [[ -z "${the_tag}" ]]; then
+          git fetch --tags
+          the_tag=$(git tag --sort=creatordate | tail -1)
+        fi
+        echo "currently on ${{ runner.environment }} and sending ${the_tag} into ${EKS_ARN}"
+        if ! gh api --verbose \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          /repos/mdaniel/repo1/deployments
+        then
+          echo "Welp, not like that I guess RC=${PIPESTATUS[0]}" >&2
+        fi
