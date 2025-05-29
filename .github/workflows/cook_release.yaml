@@ -19,17 +19,20 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
     - name: set github-actions identity
       shell: bash
       run: |
         # this pair is magic: https://github.com/actions/checkout/tree/v4.2.2#push-a-commit-using-the-built-in-token
         git config user.name "github-actions[bot]"
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"    
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
     - name: cook the release entity
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
+        git fetch --tags
         tag_name="${{ inputs.for_tag }}"
         # 'gh release create' doesn't accept anything but branch and sha
         target_sha=$(git rev-parse ${tag_name})
