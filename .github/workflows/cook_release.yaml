@@ -32,10 +32,14 @@ jobs:
       shell: bash
       # env:
       #  GH_TOKEN: ${{ github.token }}
+      # 'gh release create' 403s with github.token which explains this nonsense
       run: |
         git fetch --tags
         tag_name="${{ inputs.for_tag }}"
-        # 'gh release create' 403s with github.token
         target_sha=$(git rev-parse ${tag_name})
-        git tag "-mRelease ${{ inputs.rel_tag }}" "${{ inputs.rel_tag }}" "$target_sha"
+        # :rolling_eyes:
+        # hint: You have created a nested tag. The object referred to by your new tag is
+        # hint: already a tag. If you meant to tag the object that it points to, use:
+        # hint: 	git tag -f v3.1.0 7f6f2dc2aec61bcf9a31492d80d932253f62af81^{}
+        git tag -f "-mRelease ${{ inputs.rel_tag }}" "${{ inputs.rel_tag }}" "${target_sha}^{}"
         git push --tags
