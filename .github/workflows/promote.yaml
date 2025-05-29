@@ -35,7 +35,11 @@ jobs:
       run: |
         the_tag="${{ inputs.deploy_tag}}"
         if [[ -z "${the_tag}" ]]; then
-          git fetch --tags
+          # this is quite chatty
+          if ! git fetch --tags &>git_tag_fetch.log; then
+            cat git_tag_fetch.log
+            exit ${PIPESTATUS[0]}
+          fi
           the_tag=$(git tag --sort=creatordate | tail -1)
         fi
         echo "currently on ${{ runner.environment }} and sending ${the_tag} into ${EKS_ARN}"
