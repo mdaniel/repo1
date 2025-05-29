@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       deploy_tag:
-        description: a specific, rather than latest, tag to ship
+        description: a specific, rather than my ref, tag to ship
         type: string
         required: false
       into_environment:
@@ -15,7 +15,7 @@ jobs:
   deploy-it:
     runs-on: ubuntu-latest
     permissions: write-all
-    name: deploy ${{ inputs.deploy_tag || 'the most recent tag' }} to ${{ inputs.into_environment }}
+    name: deploy ${{ inputs.deploy_tag || github.ref_name }} to ${{ inputs.into_environment }}
     environment:
       name: ${{ inputs.into_environment }}
       url: >-
@@ -33,14 +33,9 @@ jobs:
         # dumb
         GH_TOKEN: ${{ github.token }}
       run: |
-        the_tag="${{ inputs.deploy_tag}}"
+        the_tag="${{ inputs.deploy_tag }}"
         if [[ -z "${the_tag}" ]]; then
-          # this is quite chatty
-          if ! git fetch --tags &>git_tag_fetch.log; then
-            cat git_tag_fetch.log
-            exit ${PIPESTATUS[0]}
-          fi
-          the_tag=$(git tag --sort=creatordate | tail -1)
+          the_tag="${{ github.ref_name }}"
         fi
         echo "currently on ${{ runner.environment }} and sending ${the_tag} into ${EKS_ARN}"
         if ! gh api --verbose \
