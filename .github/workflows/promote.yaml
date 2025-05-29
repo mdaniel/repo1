@@ -15,10 +15,13 @@ jobs:
   deploy-it:
     runs-on: ubuntu-latest
     permissions: write-all
-    name: deploy to ${{ inputs.into_environment }}
+    name: deploy ${{ inputs.deploy_tag || 'the most recent tag' }} to ${{ inputs.into_environment }}
     environment:
       name: ${{ inputs.into_environment }}
     steps:
+    - name: checkout
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
     - name: promote it
       shell: bash
       env:
