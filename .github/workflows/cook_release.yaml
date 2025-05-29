@@ -15,7 +15,9 @@ on:
 jobs:
   create-release:
     runs-on: ubuntu-latest
-    permissions: write-all
+    # evidently not: permissions: write-all
+    permissions:
+      contents: write
     steps:
     - name: checkout
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
@@ -36,6 +38,6 @@ jobs:
         tag_name="${{ inputs.for_tag }}"
         # 'gh release create' doesn't accept anything but branch and sha
         target_sha=$(git rev-parse ${tag_name})
-        gh release create --latest \
+        gh release create --verbose --latest \
            --target "$target_sha" "${{ inputs.rel_tag }}" \
            --title "${{ inputs.rel_tag }}"
