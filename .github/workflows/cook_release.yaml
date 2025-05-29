@@ -38,6 +38,6 @@ jobs:
         tag_name="${{ inputs.for_tag }}"
         # 'gh release create' doesn't accept anything but branch and sha
         target_sha=$(git rev-parse ${tag_name})
-        gh release create --verbose --latest \
+        gh release create --latest \
            --target "$target_sha" "${{ inputs.rel_tag }}" \
            --title "${{ inputs.rel_tag }}"
