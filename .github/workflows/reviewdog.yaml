@@ -22,7 +22,7 @@ jobs:
         shell: bash
         run: |
           python3 -m venv /tmp/reviewdog-venv
-          /tmp/reviewdog-venv/bin/pip install pylint
+          /tmp/reviewdog-venv/bin/pip install black
 
       - name: Run reviewdog
         shell: bash
@@ -30,8 +30,8 @@ jobs:
            REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }}
         run: >-
           set -x;
-          /tmp/reviewdog-venv/bin/pylint botocore
-          | reviewdog -f=pylint -name="pylint"
+          /tmp/reviewdog-venv/bin/black botocore
+          | reviewdog -f=black -name="black"
           -log-level=debug
           -reporter=github-pr-check -level=info
         # -filter-mode=added
